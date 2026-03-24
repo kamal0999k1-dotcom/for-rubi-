@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import OptionButton from './OptionButton';
-import { speak } from '../services/voiceService';
-import { playCorrectSound, playWrongSound } from '../services/soundService';
+import { speak, stopSpeaking } from '../services/voiceService';
+import { playCorrectSound, playWrongSound, playNewRoundSound, playNavigationBackSound } from '../services/soundService';
 
 interface GameScreenProps {
   playerName: string;
@@ -57,7 +57,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ playerName, category, difficult
       clearInterval(instructionIntervalRef.current);
       instructionIntervalRef.current = null;
     }
-    window.speechSynthesis.cancel();
+    stopSpeaking();
   }, []);
 
   const shoutInstruction = useCallback(() => {
@@ -74,6 +74,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ playerName, category, difficult
 
   const setupNewRound = useCallback(() => {
     stopShouting();
+    playNewRoundSound();
     setSelected(null);
     setIsWrong(false);
 
@@ -106,11 +107,11 @@ const GameScreen: React.FC<GameScreenProps> = ({ playerName, category, difficult
     setCorrectAnswer(newCorrectAnswer);
 
     setTimeout(() => {
-        let prompt = `Click on the ${newCorrectAnswer}`;
+        let prompt = `Find the ${newCorrectAnswer}`;
         if (category === 'Alphabets') {
-          prompt = `Click on the letter ${newCorrectAnswer}`;
+          prompt = `Find the letter ${newCorrectAnswer}`;
         } else if (category === 'Numbers') {
-          prompt = `Click on the number ${newCorrectAnswer}`;
+          prompt = `Find the number ${newCorrectAnswer}`;
         }
         speak(prompt);
     }, 500);
@@ -151,7 +152,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ playerName, category, difficult
         prompt = `Try again. Find the number ${correctAnswer}.`;
       }
       speak(prompt);
-      instructionIntervalRef.current = window.setInterval(shoutInstruction, 4000);
+      instructionIntervalRef.current = window.setInterval(shoutInstruction, 10000);
 
       setTimeout(() => {
         setSelected(null);
@@ -191,7 +192,10 @@ const GameScreen: React.FC<GameScreenProps> = ({ playerName, category, difficult
         ))}
       </div>
       <button 
-        onClick={onBack}
+        onClick={() => {
+          playNavigationBackSound();
+          onBack();
+        }}
         className="mt-6 md:mt-8 px-6 py-3 text-lg font-bold text-white bg-indigo-500 rounded-full shadow-lg hover:bg-indigo-600 transform hover:-translate-y-1 transition-all duration-300 ease-in-out"
       >
         Change Category

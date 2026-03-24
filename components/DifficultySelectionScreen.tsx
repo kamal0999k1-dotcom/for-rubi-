@@ -1,5 +1,6 @@
 import React from 'react';
 import { speak } from '../services/voiceService';
+import { playNavigationBackSound } from '../services/soundService';
 
 interface DifficultySelectionScreenProps {
   onSelectDifficulty: (difficulty: string) => void;
@@ -37,7 +38,10 @@ const DifficultySelectionScreen: React.FC<DifficultySelectionScreenProps> = ({ o
         ))}
       </div>
        <button 
-        onClick={onBack}
+        onClick={() => {
+          playNavigationBackSound();
+          onBack();
+        }}
         className="mt-6 md:mt-8 px-6 py-3 text-lg font-bold text-white bg-indigo-500 rounded-full shadow-lg hover:bg-indigo-600 transform hover:-translate-y-1 transition-all duration-300 ease-in-out"
       >
         Back to Categories

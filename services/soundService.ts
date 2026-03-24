@@ -150,3 +150,55 @@ export const playLevelCompleteSound = () => {
     console.error("Could not play level complete sound:", error);
   }
 };
+
+/**
+ * Plays a subtle, soft "pop" or "bubble" sound for a new round.
+ */
+export const playNewRoundSound = () => {
+  try {
+    const context = getAudioContext();
+    const now = context.currentTime;
+    const duration = 0.2;
+
+    const masterGain = context.createGain();
+    masterGain.connect(context.destination);
+    masterGain.gain.setValueAtTime(0.2, now);
+    masterGain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+    const oscillator = context.createOscillator();
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(880, now); // A5
+    oscillator.frequency.exponentialRampToValueAtTime(440, now + duration); // Slide down to A4
+    oscillator.connect(masterGain);
+    oscillator.start(now);
+    oscillator.stop(now + duration);
+  } catch (error) {
+    console.error("Could not play new round sound:", error);
+  }
+};
+
+/**
+ * Plays a soft, subtle "whoosh" or "slide" sound for navigating back.
+ */
+export const playNavigationBackSound = () => {
+  try {
+    const context = getAudioContext();
+    const now = context.currentTime;
+    const duration = 0.3;
+
+    const masterGain = context.createGain();
+    masterGain.connect(context.destination);
+    masterGain.gain.setValueAtTime(0.2, now);
+    masterGain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+    const oscillator = context.createOscillator();
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(220, now); // A3
+    oscillator.frequency.exponentialRampToValueAtTime(110, now + duration); // Slide down to A2
+    oscillator.connect(masterGain);
+    oscillator.start(now);
+    oscillator.stop(now + duration);
+  } catch (error) {
+    console.error("Could not play back navigation sound:", error);
+  }
+};

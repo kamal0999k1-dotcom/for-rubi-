@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { speak } from '../services/voiceService';
+import { speak, stopSpeaking } from '../services/voiceService';
 import { startListening, stopListening } from '../services/speechRecognitionService';
-import { playWordLearnedSound, playWrongSound, playLevelCompleteSound } from '../services/soundService';
+import { playWordLearnedSound, playWrongSound, playLevelCompleteSound, playNavigationBackSound } from '../services/soundService';
 import { EASY_WORDS, MEDIUM_WORDS, HARD_WORDS } from '../data/words';
 
 interface WordsScreenProps {
@@ -116,7 +116,7 @@ const WordsScreen: React.FC<WordsScreenProps> = ({ playerName, difficulty, onBac
     // Cleanup on unmount
     return () => {
       stopListening();
-      window.speechSynthesis.cancel();
+      stopSpeaking();
     }
   }, []);
 
@@ -155,7 +155,8 @@ const WordsScreen: React.FC<WordsScreenProps> = ({ playerName, difficulty, onBac
       <button 
         onClick={() => {
           stopListening();
-          window.speechSynthesis.cancel();
+          stopSpeaking();
+          playNavigationBackSound();
           onBack();
         }}
         className="mt-6 md:mt-8 px-6 py-3 text-lg font-bold text-white bg-indigo-500 rounded-full shadow-lg hover:bg-indigo-600 transform hover:-translate-y-1 transition-all duration-300 ease-in-out"

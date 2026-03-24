@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { speak } from '../services/voiceService';
+import { speak, stopSpeaking } from '../services/voiceService';
 import { startListening, stopListening } from '../services/speechRecognitionService';
-import { playCorrectSound, playWrongSound, playLevelCompleteSound } from '../services/soundService';
+import { playCorrectSound, playWrongSound, playLevelCompleteSound, playNavigationBackSound } from '../services/soundService';
 
 interface RhymeScreenProps {
   playerName: string;
@@ -129,7 +129,7 @@ const RhymeScreen: React.FC<RhymeScreenProps> = ({ playerName, onBack }) => {
     // Cleanup on unmount
     return () => {
       stopListening();
-      window.speechSynthesis.cancel();
+      stopSpeaking();
     }
   }, []);
 
@@ -170,7 +170,8 @@ const RhymeScreen: React.FC<RhymeScreenProps> = ({ playerName, onBack }) => {
       <button 
         onClick={() => {
           stopListening();
-          window.speechSynthesis.cancel();
+          stopSpeaking();
+          playNavigationBackSound();
           onBack();
         }}
         className="mt-6 md:mt-8 px-6 py-3 text-lg font-bold text-white bg-indigo-500 rounded-full shadow-lg hover:bg-indigo-600 transform hover:-translate-y-1 transition-all duration-300 ease-in-out"
