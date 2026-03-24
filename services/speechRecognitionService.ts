@@ -46,6 +46,8 @@ const SpeechRecognition: SpeechRecognitionStatic | undefined = (window as any).S
 let recognition: SpeechRecognition | null = null;
 let isListening = false;
 
+export const isSpeechSupported = !!SpeechRecognition;
+
 if (SpeechRecognition) {
   recognition = new SpeechRecognition();
   recognition.continuous = false;

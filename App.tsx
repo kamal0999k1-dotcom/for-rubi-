@@ -6,17 +6,22 @@ import DifficultySelectionScreen from './components/DifficultySelectionScreen';
 import WordsScreen from './components/WordsScreen';
 import { initializeVoices, speak } from './services/voiceService';
 
+import WelcomeScreen from './components/WelcomeScreen';
+
 const App: React.FC = () => {
   const playerName = "Rubi";
+  const [isStarted, setIsStarted] = useState<boolean>(false);
   const [gameCategory, setGameCategory] = useState<string | null>(null);
   const [difficulty, setDifficulty] = useState<string | null>(null);
 
   useEffect(() => {
-    // Pre-load voices and greet the player
-    initializeVoices().then(() => {
-        speak(`Hello ${playerName}! Let's learn!`);
-    });
+    // Pre-load voices
+    initializeVoices();
   }, []);
+
+  const handleStart = () => {
+    setIsStarted(true);
+  };
 
   const handleCategorySelect = (category: string) => {
     setGameCategory(category);
@@ -32,6 +37,10 @@ const App: React.FC = () => {
   };
 
   const renderContent = () => {
+    if (!isStarted) {
+      return <WelcomeScreen playerName={playerName} onStart={handleStart} />;
+    }
+
     if (!gameCategory) {
       return <CategorySelectionScreen onSelectCategory={handleCategorySelect} playerName={playerName} />;
     }

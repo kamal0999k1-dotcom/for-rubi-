@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { speak, stopSpeaking } from '../services/voiceService';
-import { startListening, stopListening } from '../services/speechRecognitionService';
+import { startListening, stopListening, isSpeechSupported } from '../services/speechRecognitionService';
 import { playWordLearnedSound, playWrongSound, playLevelCompleteSound, playNavigationBackSound } from '../services/soundService';
 import { EASY_WORDS, MEDIUM_WORDS, HARD_WORDS } from '../data/words';
 
@@ -81,9 +81,14 @@ const WordsScreen: React.FC<WordsScreenProps> = ({ playerName, difficulty, onBac
           speak(currentWord, () => setStatus('USER_PROMPT'));
           break;
         case 'USER_PROMPT':
+          if (!isSpeechSupported) {
+            // If speech is not supported, just wait a bit and show the next button
+            return;
+          }
           setTimeout(() => setStatus('LISTENING'), 500);
           break;
         case 'LISTENING':
+          if (!isSpeechSupported) return;
           startListening(handleSpeechResult, handleSpeechError);
           break;
         case 'CORRECT_FEEDBACK':
@@ -146,23 +151,34 @@ const WordsScreen: React.FC<WordsScreenProps> = ({ playerName, difficulty, onBac
         <p className="text-xl md:text-3xl font-bold text-indigo-800">{text}</p>
       </div>
 
-      <div className="flex items-center justify-center p-4 md:p-6 bg-white rounded-xl shadow-inner min-h-[120px] md:min-h-[150px]">
+      <div className="flex items-center justify-center p-4 md:p-6 bg-white rounded-xl shadow-inner min-h-[120px] md:min-h-[150px] mb-6">
         <p className="text-5xl md:text-8xl font-bold text-purple-700 tracking-wider">
             {currentWord}
         </p>
       </div>
 
-      <button 
-        onClick={() => {
-          stopListening();
-          stopSpeaking();
-          playNavigationBackSound();
-          onBack();
-        }}
-        className="mt-6 md:mt-8 px-6 py-3 text-lg font-bold text-white bg-indigo-500 rounded-full shadow-lg hover:bg-indigo-600 transform hover:-translate-y-1 transition-all duration-300 ease-in-out"
-      >
-        Change Category
-      </button>
+      <div className="flex flex-col md:flex-row items-center justify-center gap-4">
+        {(!isSpeechSupported || status === 'USER_PROMPT' || status === 'LISTENING' || status === 'INCORRECT_FEEDBACK') && (
+          <button 
+            onClick={advanceWord}
+            className="w-full md:w-auto px-8 py-4 text-2xl font-black text-white bg-gradient-to-r from-green-400 to-emerald-500 rounded-2xl shadow-lg hover:scale-105 transition-all duration-300"
+          >
+            NEXT WORD ➔
+          </button>
+        )}
+
+        <button 
+          onClick={() => {
+            stopListening();
+            stopSpeaking();
+            playNavigationBackSound();
+            onBack();
+          }}
+          className="w-full md:w-auto px-6 py-3 text-lg font-bold text-white bg-indigo-500 rounded-full shadow-lg hover:bg-indigo-600 transform hover:-translate-y-1 transition-all duration-300 ease-in-out"
+        >
+          Change Category
+        </button>
+      </div>
     </div>
   );
 };

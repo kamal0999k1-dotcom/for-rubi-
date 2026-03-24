@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { speak, stopSpeaking } from '../services/voiceService';
-import { startListening, stopListening } from '../services/speechRecognitionService';
+import { startListening, stopListening, isSpeechSupported } from '../services/speechRecognitionService';
 import { playCorrectSound, playWrongSound, playLevelCompleteSound, playNavigationBackSound } from '../services/soundService';
 
 interface RhymeScreenProps {
@@ -78,6 +78,17 @@ const RhymeScreen: React.FC<RhymeScreenProps> = ({ playerName, onBack }) => {
     });
   };
 
+  const handleNextLine = () => {
+    stopListening();
+    stopSpeaking();
+    if (lineIndex < currentRhyme.lines.length - 1) {
+      setLineIndex(prev => prev + 1);
+      setStatus('BOT_SPEAKING');
+    } else {
+      setStatus('RHYME_COMPLETE');
+    }
+  };
+
   useEffect(() => {
     const processGameLogic = async () => {
       switch (status) {
@@ -88,9 +99,14 @@ const RhymeScreen: React.FC<RhymeScreenProps> = ({ playerName, onBack }) => {
           speak(currentLine, () => setStatus('USER_PROMPT'));
           break;
         case 'USER_PROMPT':
+          if (!isSpeechSupported) {
+            // If speech is not supported, just wait a bit and show the next button
+            return;
+          }
           setTimeout(() => setStatus('LISTENING'), 500);
           break;
         case 'LISTENING':
+          if (!isSpeechSupported) return;
           startListening(handleSpeechResult, handleSpeechError);
           break;
         case 'CORRECT_FEEDBACK':
@@ -159,7 +175,7 @@ const RhymeScreen: React.FC<RhymeScreenProps> = ({ playerName, onBack }) => {
         <p className="text-xl md:text-3xl font-bold text-indigo-800">{text}</p>
       </div>
 
-      <div className="text-left p-4 md:p-6 bg-white rounded-xl shadow-inner min-h-[120px] md:min-h-[150px]">
+      <div className="text-left p-4 md:p-6 bg-white rounded-xl shadow-inner min-h-[120px] md:min-h-[150px] mb-6">
         {currentRhyme.lines.map((line, index) => (
           <p key={index} className={`text-xl md:text-3xl transition-all duration-300 ${index === lineIndex ? 'font-bold text-purple-700' : 'text-gray-500'}`}>
             {line}
@@ -167,17 +183,28 @@ const RhymeScreen: React.FC<RhymeScreenProps> = ({ playerName, onBack }) => {
         ))}
       </div>
 
-      <button 
-        onClick={() => {
-          stopListening();
-          stopSpeaking();
-          playNavigationBackSound();
-          onBack();
-        }}
-        className="mt-6 md:mt-8 px-6 py-3 text-lg font-bold text-white bg-indigo-500 rounded-full shadow-lg hover:bg-indigo-600 transform hover:-translate-y-1 transition-all duration-300 ease-in-out"
-      >
-        Change Category
-      </button>
+      <div className="flex flex-col md:flex-row items-center justify-center gap-4">
+        {(!isSpeechSupported || status === 'USER_PROMPT' || status === 'LISTENING' || status === 'INCORRECT_FEEDBACK') && (
+          <button 
+            onClick={handleNextLine}
+            className="w-full md:w-auto px-8 py-4 text-2xl font-black text-white bg-gradient-to-r from-green-400 to-emerald-500 rounded-2xl shadow-lg hover:scale-105 transition-all duration-300"
+          >
+            NEXT LINE ➔
+          </button>
+        )}
+
+        <button 
+          onClick={() => {
+            stopListening();
+            stopSpeaking();
+            playNavigationBackSound();
+            onBack();
+          }}
+          className="w-full md:w-auto px-6 py-3 text-lg font-bold text-white bg-indigo-500 rounded-full shadow-lg hover:bg-indigo-600 transform hover:-translate-y-1 transition-all duration-300 ease-in-out"
+        >
+          Change Category
+        </button>
+      </div>
     </div>
   );
 };
