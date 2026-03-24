@@ -1,0 +1,7 @@
+{
+  "name": "Alphabet Adventure",
+  "description": "A fun and interactive game for 4-5 year old kids to learn the alphabet. The game features a friendly voice that guides the child to select the correct letter from a group of options.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
