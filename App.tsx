@@ -41,23 +41,38 @@ const App: React.FC = () => {
       return <WelcomeScreen playerName={playerName} onStart={handleStart} />;
     }
 
-    if (!gameCategory) {
-      return <CategorySelectionScreen onSelectCategory={handleCategorySelect} playerName={playerName} />;
-    }
-    
-    if (gameCategory === 'Nursery Rhymes') {
-        return <RhymeScreen playerName={playerName} onBack={handleBackToCategories} />;
-    }
+    return (
+      <div className="relative w-full h-full flex flex-col items-center justify-center">
+        {/* API Key Help Button for Mobile */}
+        <button 
+          onClick={() => alert("To add your API Key: Tap the gear icon (Settings) at the top right, find GEMINI_API_KEY, paste your key, and Save!")}
+          className="absolute top-0 right-0 m-4 p-2 bg-white/50 rounded-full text-indigo-600 hover:bg-white/80 transition-all z-50"
+          title="API Key Help"
+        >
+          🔑
+        </button>
 
-    if (!difficulty) {
-        return <DifficultySelectionScreen onSelectDifficulty={handleDifficultySelect} category={gameCategory} onBack={handleBackToCategories} />;
-    }
+        {(() => {
+          if (!gameCategory) {
+            return <CategorySelectionScreen onSelectCategory={handleCategorySelect} playerName={playerName} />;
+          }
+          
+          if (gameCategory === 'Nursery Rhymes') {
+              return <RhymeScreen playerName={playerName} onBack={handleBackToCategories} />;
+          }
 
-    if (gameCategory === 'Words') {
-        return <WordsScreen playerName={playerName} difficulty={difficulty} onBack={handleBackToCategories} />;
-    }
-    
-    return <GameScreen playerName={playerName} category={gameCategory} difficulty={difficulty} onBack={handleBackToCategories} />;
+          if (!difficulty) {
+              return <DifficultySelectionScreen onSelectDifficulty={handleDifficultySelect} category={gameCategory} onBack={handleBackToCategories} />;
+          }
+
+          if (gameCategory === 'Words') {
+              return <WordsScreen playerName={playerName} difficulty={difficulty} onBack={handleBackToCategories} />;
+          }
+          
+          return <GameScreen playerName={playerName} category={gameCategory} difficulty={difficulty} onBack={handleBackToCategories} />;
+        })()}
+      </div>
+    );
   };
 
   return (

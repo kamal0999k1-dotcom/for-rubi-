@@ -1,5 +1,5 @@
-import React from 'react';
-import { speak } from '../services/voiceService';
+import React, { useState } from 'react';
+import { speak, unlockAudio } from '../services/voiceService';
 
 interface WelcomeScreenProps {
   playerName: string;
@@ -7,9 +7,12 @@ interface WelcomeScreenProps {
 }
 
 const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ playerName, onStart }) => {
+  const [showKeyHelp, setShowKeyHelp] = useState(false);
+
   const handleStart = () => {
     // This click triggers audio context unlock on mobile
-    speak(`Hello ${playerName}! Welcome to Alphabet Adventure! Let's play!`);
+    unlockAudio();
+    speak(`Hello ${playerName}! Let's play!`);
     onStart();
   };
 
@@ -38,7 +41,24 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ playerName, onStart }) =>
       
       <div className="mt-12 text-indigo-400 text-sm md:text-base font-medium">
         <p>Best played in <span className="font-bold">Safari</span> or <span className="font-bold">Chrome</span></p>
-        <p className="mt-1 opacity-70">If you're in Messenger, tap the three dots and "Open in Browser"</p>
+        <button 
+          onClick={() => setShowKeyHelp(!showKeyHelp)}
+          className="mt-4 text-pink-500 underline font-bold"
+        >
+          Need to add an API Key?
+        </button>
+        
+        {showKeyHelp && (
+          <div className="mt-4 p-4 bg-pink-50 rounded-xl border border-pink-200 text-left text-indigo-800">
+            <p className="font-bold mb-2">How to add your Gemini API Key:</p>
+            <ol className="list-decimal list-inside space-y-1 text-xs md:text-sm">
+              <li>Tap the <span className="font-bold">Settings (gear icon)</span> at the top right of the screen.</li>
+              <li>Find the <span className="font-bold">GEMINI_API_KEY</span> field.</li>
+              <li>Paste your key and tap <span className="font-bold">Save</span>.</li>
+              <li>Refresh the page to start playing!</li>
+            </ol>
+          </div>
+        )}
       </div>
     </div>
   );
